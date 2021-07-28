@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Velocimetro</string>
+    <string name="text_active_gps_message">Ative o GPS para usar o velocímetro!</string>
+    <string name="want_to_close">Deseja fechar?</string>
+</resources>
