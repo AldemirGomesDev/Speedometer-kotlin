@@ -4,20 +4,60 @@ plugins {
     id 'kotlin-kapt'
 }
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.app.velocimetro"
-        minSdkVersion 15
-        targetSdkVersion 28
+        minSdkVersion 23
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            versionNameSuffix ".dev"
+            debuggable true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    flavorDimensions "version", "environment"
+    productFlavors {
+        free {
+            dimension "version"
+            buildConfigField 'boolean', 'IS_PAID', 'false'
+            versionNameSuffix "-free"
+            applicationIdSuffix ".free"
+        }
+        paid {
+            dimension "version"
+            buildConfigField 'boolean', 'IS_PAID', 'true'
+            versionNameSuffix "-paid"
+        }
+        development {
+            dimension "environment"
+            //Will be used in AndroidManifest.xml to show app name
+            manifestPlaceholders = [appLabel: "Build Variant Demo - Dev"]
+            //resource value - will be generated and can be used via R.string.google_api_client_key
+            resValue "string", "google_api_client_key", "YOUR GOOGLE API CLIENT KEY FOR DEVELOPMENT"
+            //Config value - will be generated and can be used via BuildConfig.BASE_URL
+            buildConfigField 'String', "BASE_URL", '"YOUR BASE URL FOR DEVELOPMENT"'
+            versionCode 2000 + android.defaultConfig.versionCode
+            versionNameSuffix "-dev"
+            applicationIdSuffix ".dev"
+        }
+        production {
+            dimension "version"
+            versionNameSuffix ".prod"
+            //Will be used in AndroidManifest.xml to show app name
+            manifestPlaceholders = [appLabel: "Build Variant Demo"]
+            //resource value - will be generated and can be used via R.string.google_api_client_key
+            resValue "string", "google_api_client_key", "YOUR GOOGLE API CLIENT KEY FOR PRODUCTION"
+            //Config value - will be generated and can be used via BuildConfig.BASE_URL
+            buildConfigField 'String', "BASE_URL", '"YOUR BASE URL FOR PRODUCTION"'
         }
     }
 }
@@ -26,12 +66,32 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
+    //noinspection GradleCompatible
     implementation 'com.android.support:cardview-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
+    //noinspection GradleCompatible
     implementation 'com.android.support:design:28.0.0'
-    implementation 'com.google.android.gms:play-services:10.2.6'
+    implementation 'com.google.android.gms:play-services:12.0.1'
     implementation 'com.jakewharton:butterknife:8.5.1'
+
+    def room_version = "2.3.0"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    // optional - RxJava3 support for Room
+    implementation "androidx.room:room-rxjava3:$room_version"
+
+    //workmanager run in background
+    implementation "android.arch.work:work-runtime-ktx:1.0.1"
+
+    // Dagger
+    implementation "com.google.dagger:dagger:2.28.3"
+    implementation "com.google.dagger:dagger-android-support:2.28.3"
+    kapt "com.google.dagger:dagger-compiler:2.28.3"
+    kapt "com.google.dagger:dagger-android-processor:2.28.3"
+
+    //noinspection GradleCompatible
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
